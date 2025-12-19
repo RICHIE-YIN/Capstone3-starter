@@ -47,7 +47,7 @@ public class ShoppingCartController
 
     @PostMapping("products/{productId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addToCart(@PathVariable int productId, Principal principal) {
+    public ShoppingCart addToCart(@PathVariable int productId, Principal principal) {
         try {
             String userName = principal.getName();
             User user = userDao.getByUserName(userName);
@@ -59,6 +59,7 @@ public class ShoppingCartController
             }
 
             shoppingCartDao.addItem(userId, productId);
+            return shoppingCartDao.getByUserId(userId);
         } catch (ResponseStatusException e) {
             throw e;
         } catch(Exception e) {
@@ -87,13 +88,14 @@ public class ShoppingCartController
     }
 
     @DeleteMapping("")
-    public void clearCart(Principal principal) {
+    public ShoppingCart clearCart(Principal principal) {
         try {
             String username = principal.getName();
             User user = userDao.getByUserName(username);
             int userId = user.getId();
 
             shoppingCartDao.clearCart(userId);
+            return new ShoppingCart();
         } catch(Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to clear cart");
         }
